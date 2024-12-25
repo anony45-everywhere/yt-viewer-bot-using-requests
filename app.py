@@ -10,6 +10,7 @@ from youtube_viewer import YouTubeViewer
 import asyncio
 import logging
 import os
+from fastapi.responses import JSONResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -115,6 +116,14 @@ async def get_task_status(task_id: str):
 async def get_all_tasks():
     """Get all active tasks."""
     return tasks
+
+# Add error handling middleware
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": str(exc.detail)}
+    )
 
 if __name__ == "__main__":
     import uvicorn

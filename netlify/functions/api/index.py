@@ -1,14 +1,19 @@
+from mangum import Mangum
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 from pydantic import BaseModel
 import re
 import uuid
 from typing import Dict, Optional
-from youtube_viewer import YouTubeViewer
 import asyncio
 import logging
 import json
+import os
+import sys
+
+# Add the parent directory to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+from youtube_viewer import YouTubeViewer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -107,5 +112,25 @@ async def get_all_tasks():
     """Get all active tasks."""
     return tasks
 
-# Create handler for AWS Lambda
-handler = Mangum(app) 
+# Create handler for Netlify Functions
+handler = Mangum(app, lifespan="off")
+
+def handler(event, context):
+    """AWS Lambda / Netlify Function handler."""
+    try:
+        # Log the incoming event
+        logger.info(f"Received event: {json.dumps(event)}")
+        
+        # Handle the request
+        response = Mangum(app, lifespan="off")(event, context)
+        
+        # Log the response
+        logger.info(f"Sending response: {json.dumps(response)}")
+        
+        return response
+    except Exception as e:
+        logger.error(f"Error handling request: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        } 

@@ -1,7 +1,6 @@
 [build]
   publish = "dist"
   command = """
-    pip install -r requirements.txt &&
     mkdir -p dist &&
     cp -r static dist/ &&
     cp templates/index.html dist/index.html
@@ -10,10 +9,14 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["@netlify/functions"]
+
+[functions.api]
   included_files = ["youtube_viewer.py"]
 
 [[redirects]]
-  from = "/api/*"
+  from = "/.netlify/functions/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
@@ -21,4 +24,7 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 200
+
+[build.environment]
+  PYTHON_VERSION = "3.9" 

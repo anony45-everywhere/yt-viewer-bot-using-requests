@@ -16,8 +16,8 @@ A FastAPI-based web application that provides an API for simulating YouTube view
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/youtube-viewer-api.git
-cd youtube-viewer-api
+git clone https://github.com/Likhithsai2580/yt-viewer-using-req.git
+cd yt-viewer-using-req
 ```
 
 2. Create a virtual environment and activate it:
@@ -52,28 +52,23 @@ The application will be available at `http://localhost:8000`
 
 ## Deployment
 
-The application uses separate GitHub Actions workflows for backend and frontend:
+This application is deployed using Netlify:
 
-### Backend Deployment
-1. The backend API runs on GitHub Actions
-2. Automatically deploys when changes are made to:
-   - `app.py`
-   - `youtube_viewer.py`
-   - `requirements.txt`
-3. Access the API at the GitHub Actions runner's URL
+1. The frontend is served statically from the `dist` directory
+2. The backend API runs as a Netlify Function
+3. Automatic deployments occur when changes are pushed to the main branch
 
-### Frontend Deployment
-1. The frontend is deployed to GitHub Pages
-2. Automatically deploys when changes are made to:
-   - `templates/`
-   - `static/`
-3. Access the frontend at `https://yourusername.github.io/youtube-viewer-api`
+To deploy your own instance:
 
-Note: For production use, consider using a proper hosting service like:
-- DigitalOcean
-- AWS EC2
-- Google Cloud Run
-- Azure App Service
+1. Fork this repository
+2. Sign up for Netlify
+3. Connect your forked repository to Netlify
+4. Set the following environment variables in Netlify:
+   - `NETLIFY_AUTH_TOKEN`
+   - `NETLIFY_SITE_ID`
+5. Deploy! Netlify will automatically build and deploy both frontend and backend
+
+The application will be available at `https://your-site-name.netlify.app`
 
 ## Contributing
 
