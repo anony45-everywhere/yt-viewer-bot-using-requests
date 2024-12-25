@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">YouTube Viewer</h1>
+        
+        <!-- Input Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="viewForm">
+                    <div class="mb-3">
+                        <label for="url" class="form-label">YouTube URL</label>
+                        <input type="text" class="form-control" id="url" required 
+                               placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="numViews" class="form-label">Number of Views (1-10)</label>
+                        <input type="number" class="form-control" id="numViews" 
+                               min="1" max="10" value="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Start Viewing</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Active Tasks -->
+        <h2 class="mb-3">Active Tasks</h2>
+        <div id="activeTasks"></div>
+    </div>
+
+    <script>
+        // Get base URL for GitHub Pages
+        const baseUrl = window.location.pathname.endsWith('/') 
+            ? window.location.pathname 
+            : window.location.pathname + '/';
+
+        // Function to create a task card
+        function createTaskCard(task) {
+            const progress = (task.current_view / task.num_views) * 100;
+            const statusColor = {
+                'pending': 'bg-warning',
+                'running': 'bg-info',
+                'completed': 'bg-success',
+                'failed': 'bg-danger'
+            }[task.status];
+
+            return `
+                <div class="card task-card" id="task-${task.task_id}">
+                    <div class="card-body">
+                        <h5 class="card-title">Task ${task.task_id}</h5>
+                        <p class="card-text">
+                            URL: ${task.url}<br>
+                            Status: <span class="badge ${statusColor}">${task.status}</span><br>
+                            Views: ${task.completed_views}/${task.num_views}
+                        </p>
+                        <div class="progress">
+                            <div class="progress-bar ${statusColor}" role="progressbar" 
+                                 style="width: ${progress}%" 
+                                 aria-valuenow="${progress}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                ${Math.round(progress)}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to update tasks
+        async function updateTasks() {
+            try {
+                const response = await fetch(baseUrl + 'tasks');
+                const tasks = await response.json();
+                
+                const tasksDiv = document.getElementById('activeTasks');
+                tasksDiv.innerHTML = '';
+                
+                Object.entries(tasks).forEach(([taskId, task]) => {
+                    task.task_id = taskId;
+                    tasksDiv.innerHTML += createTaskCard(task);
+                });
+            } catch (error) {
+                console.error('Error updating tasks:', error);
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('viewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value;
+            const numViews = parseInt(document.getElementById('numViews').value);
+            
+            try {
+                const response = await fetch(baseUrl + 'view', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        num_views: numViews
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create task');
+                }
+                
+                const result = await response.json();
+                console.log('Task created:', result);
+                updateTasks();
+            } catch (error) {
+                alert('Error creating task: ' + error.message);
+            }
+        });
+
+        // Update tasks every 5 seconds
+        updateTasks();
+        setInterval(updateTasks, 5000);
+    </script>
+</body>
+</html> 
