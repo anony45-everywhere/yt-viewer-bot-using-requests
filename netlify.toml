@@ -13,13 +13,18 @@
   external_node_modules = ["@netlify/functions"]
 
 [functions.api]
-  included_files = ["*.py"]
+  included_files = ["*.py", "youtube_viewer.py"]
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "/.netlify/functions/api"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [build.environment]
   PYTHON_VERSION = "3.9"

@@ -9,12 +9,17 @@ from youtube_viewer import YouTubeViewer
 import asyncio
 import logging
 import json
+import os
+import sys
+
+# Add the project root to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+app = FastAPI(root_path="/.netlify/functions/api")
 
 # Add CORS middleware
 app.add_middleware(
@@ -107,5 +112,36 @@ async def get_all_tasks():
     """Get all active tasks."""
     return tasks
 
-# Create handler for AWS Lambda
-handler = Mangum(app) 
+# Update the handler
+def handler(event, context):
+    """AWS Lambda / Netlify Function handler."""
+    try:
+        # Strip the /api prefix from the path
+        if event.get('path', '').startswith('/api/'):
+            event['path'] = event['path'][4:]
+        
+        asgi_handler = Mangum(app, lifespan="off")
+        response = asgi_handler(event, context)
+        
+        # Add CORS headers to the response
+        if 'headers' not in response:
+            response['headers'] = {}
+        
+        response['headers'].update({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        })
+        
+        return response
+    except Exception as e:
+        logger.error(f"Error handling request: {str(e)}")
+        return {
+            "statusCode": 500,
+            "headers": {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
+            "body": json.dumps({"error": str(e)})
+        } 

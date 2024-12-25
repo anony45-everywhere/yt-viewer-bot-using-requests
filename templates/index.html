@@ -89,7 +89,7 @@
                     tasksDiv.innerHTML += createTaskCard(task);
                 });
             } catch (error) {
-                console.error('Error updating tasks:', error);
+                console.error('Error fetching tasks:', error);
             }
         }
 
@@ -101,23 +101,7 @@
             const numViews = parseInt(document.getElementById('numViews').value);
             
             try {
-                const response = await fetch(`${API_BASE}/view`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        url: url,
-                        num_views: numViews
-                    }),
-                });
-                
-                if (!response.ok) {
-                    const error = await response.text();
-                    throw new Error(error || 'Failed to create task');
-                }
-                
-                const result = await response.json();
+                const result = await createTask(url, numViews);
                 console.log('Task created:', result);
                 updateTasks();
             } catch (error) {
@@ -128,6 +112,32 @@
         // Update tasks every 5 seconds
         updateTasks();
         setInterval(updateTasks, 5000);
+
+        async function createTask(url, numViews) {
+            try {
+                const response = await fetch(`${API_BASE}/view`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        num_views: numViews
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error || 'Failed to create task');
+                }
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating task:', error);
+                throw error;
+            }
+        }
     </script>
 </body>
 </html> 
