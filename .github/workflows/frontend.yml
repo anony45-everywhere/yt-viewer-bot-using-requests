@@ -6,12 +6,15 @@ on:
     paths:
       - 'templates/**'
       - 'static/**'
+      - '.github/workflows/frontend.yml'
   pull_request:
     branches: [ main ]
 
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v2
@@ -21,18 +24,21 @@ jobs:
       with:
         node-version: '16'
     
-    - name: Install serve
-      run: npm install -g serve
-    
-    - name: Build static files
+    - name: Create dist structure
       run: |
         mkdir -p dist
-        cp -r templates dist/
-        cp -r static dist/ || echo "No static files found"
+        cp -r static dist/
+        mkdir -p dist/templates
+        cp templates/index.html dist/templates/
+        # Create index.html in root for GitHub Pages
+        cp templates/index.html dist/index.html
+        # Update paths in index.html
+        sed -i 's|/static/|./static/|g' dist/index.html
     
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
-        enable_jekyll: false 
+        enable_jekyll: false
+        force_orphan: true 

@@ -9,6 +9,7 @@ from typing import Dict, Optional
 from youtube_viewer import YouTubeViewer
 import asyncio
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +25,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Create directories if they don't exist
+os.makedirs("static/css", exist_ok=True)
+os.makedirs("templates", exist_ok=True)
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
