@@ -11,8 +11,10 @@ import json
 import os
 import sys
 
-# Add the parent directory to Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+# Add the project root to Python path
+current_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.append(current_dir)
+
 from youtube_viewer import YouTubeViewer
 
 # Configure logging
@@ -112,21 +114,12 @@ async def get_all_tasks():
     """Get all active tasks."""
     return tasks
 
-# Create handler for Netlify Functions
-handler = Mangum(app, lifespan="off")
-
+# Update the handler
 def handler(event, context):
     """AWS Lambda / Netlify Function handler."""
     try:
-        # Log the incoming event
-        logger.info(f"Received event: {json.dumps(event)}")
-        
-        # Handle the request
-        response = Mangum(app, lifespan="off")(event, context)
-        
-        # Log the response
-        logger.info(f"Sending response: {json.dumps(response)}")
-        
+        asgi_handler = Mangum(app, lifespan="off")
+        response = asgi_handler(event, context)
         return response
     except Exception as e:
         logger.error(f"Error handling request: {str(e)}")
