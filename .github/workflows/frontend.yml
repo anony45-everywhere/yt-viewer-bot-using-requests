@@ -19,26 +19,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-    
     - name: Create dist structure
       run: |
         mkdir -p dist
         cp -r static dist/
-        mkdir -p dist/templates
-        cp templates/index.html dist/templates/
-        # Create index.html in root for GitHub Pages
+        # Create index.html in root
         cp templates/index.html dist/index.html
-        # Update paths in index.html
-        sed -i 's|/static/|./static/|g' dist/index.html
+        # Update paths in index.html for GitHub Pages
+        sed -i 's|href="/static/|href="./static/|g' dist/index.html
+        sed -i 's|fetch("/|fetch("./|g' dist/index.html
     
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
-        enable_jekyll: false
         force_orphan: true 

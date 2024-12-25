@@ -36,6 +36,11 @@
     </div>
 
     <script>
+        // Get base URL for GitHub Pages
+        const baseUrl = window.location.pathname.endsWith('/') 
+            ? window.location.pathname 
+            : window.location.pathname + '/';
+
         // Function to create a task card
         function createTaskCard(task) {
             const progress = (task.current_view / task.num_views) * 100;
@@ -72,7 +77,7 @@
         // Function to update tasks
         async function updateTasks() {
             try {
-                const response = await fetch('/tasks');
+                const response = await fetch(baseUrl + 'tasks');
                 const tasks = await response.json();
                 
                 const tasksDiv = document.getElementById('activeTasks');
@@ -95,7 +100,7 @@
             const numViews = parseInt(document.getElementById('numViews').value);
             
             try {
-                const response = await fetch('/view', {
+                const response = await fetch(baseUrl + 'view', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
