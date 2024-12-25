@@ -8,6 +8,7 @@ from typing import Dict, Optional
 from youtube_viewer import YouTubeViewer
 import asyncio
 import logging
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -75,7 +76,7 @@ async def process_views(task_id: str, url: str, num_views: int):
         tasks[task_id]["status"] = "failed"
         tasks[task_id]["error"] = str(e)
 
-@app.post("/api/view")
+@app.post("/view")
 async def create_view_task(request: ViewRequest):
     """Create a new view task."""
     if request.num_views < 1 or request.num_views > 10:
@@ -94,17 +95,27 @@ async def create_view_task(request: ViewRequest):
     asyncio.create_task(process_views(task_id, request.url, request.num_views))
     return {"task_id": task_id}
 
-@app.get("/api/status/{task_id}")
+@app.get("/status/{task_id}")
 async def get_task_status(task_id: str):
     """Get the status of a specific task."""
     if task_id not in tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     return tasks[task_id]
 
-@app.get("/api/tasks")
+@app.get("/tasks")
 async def get_all_tasks():
     """Get all active tasks."""
     return tasks
 
-# Create handler for AWS Lambda / Netlify Functions
-handler = Mangum(app) 
+# Create handler for Netlify Functions
+handler = Mangum(app, lifespan="off")
+
+# Netlify function handler
+def handler(event, context):
+    # Remove base path from request URL
+    path = event.get("path", "")
+    if path.startswith("/api"):
+        event["path"] = path.replace("/api", "", 1)
+    
+    # Handle the request
+    return Mangum(app, lifespan="off")(event, context) 

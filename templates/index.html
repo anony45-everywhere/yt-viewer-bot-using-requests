@@ -36,6 +36,9 @@
     </div>
 
     <script>
+        // API Configuration
+        const API_BASE = '/.netlify/functions/api';
+
         // Function to create a task card
         function createTaskCard(task) {
             const progress = (task.current_view / task.num_views) * 100;
@@ -72,7 +75,10 @@
         // Function to update tasks
         async function updateTasks() {
             try {
-                const response = await fetch('/api/tasks');
+                const response = await fetch(`${API_BASE}/tasks`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const tasks = await response.json();
                 
                 const tasksDiv = document.getElementById('activeTasks');
@@ -95,7 +101,7 @@
             const numViews = parseInt(document.getElementById('numViews').value);
             
             try {
-                const response = await fetch('/api/view', {
+                const response = await fetch(`${API_BASE}/view`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -107,7 +113,8 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Failed to create task');
+                    const error = await response.text();
+                    throw new Error(error || 'Failed to create task');
                 }
                 
                 const result = await response.json();
