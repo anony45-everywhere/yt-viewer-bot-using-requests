@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -24,16 +24,14 @@ jobs:
         pip install -r requirements.txt
         pip install uvicorn
     
-    - name: Build static files
+    - name: Run FastAPI Server
       run: |
-        mkdir -p dist
-        cp -r templates dist/
-        cp -r static dist/
-        cp app.py dist/
-        cp requirements.txt dist/
-    
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@4.1.4
-      with:
-        branch: gh-pages
-        folder: dist 
+        nohup python -m uvicorn app:app --host 0.0.0.0 --port 8000 &
+        echo "FastAPI server started on port 8000"
+        
+    - name: Keep workflow alive
+      run: |
+        while true; do
+          echo "Server is running..."
+          sleep 300
+        done 

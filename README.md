@@ -30,7 +30,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Run the application:
+4. Run the application locally:
 ```bash
 uvicorn app:app --reload
 ```
@@ -51,15 +51,19 @@ The application will be available at `http://localhost:8000`
 
 ## Deployment
 
-The application includes GitHub Actions workflow for automatic deployment to GitHub Pages:
+The application uses GitHub Actions to run the FastAPI server:
 
 1. Fork or clone this repository
-2. Enable GitHub Pages in your repository settings:
-   - Go to Settings > Pages
-   - Select the `gh-pages` branch as the source
-   - Save the settings
-3. Push to the main branch to trigger deployment
-4. Your site will be available at `https://yourusername.github.io/youtube-viewer-api`
+2. Go to the Actions tab in your repository
+3. Enable workflows if they're not already enabled
+4. Push to the main branch to trigger deployment
+5. The server will start automatically and run continuously
+
+Note: This deployment method is suitable for testing and development. For production use, consider using a proper hosting service like:
+- DigitalOcean
+- AWS EC2
+- Google Cloud Run
+- Azure App Service
 
 ## Contributing
 
