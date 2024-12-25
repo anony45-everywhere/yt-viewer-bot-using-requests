@@ -9,4 +9,5 @@ pytest==6.2.5
 tqdm==4.62.3
 beautifulsoup4==4.9.3
 lxml==4.9.1
-aiofiles==0.8.0 
+aiofiles==0.8.0
+mangum==0.17.0 

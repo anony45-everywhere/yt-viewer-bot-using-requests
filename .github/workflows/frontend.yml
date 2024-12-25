@@ -7,14 +7,13 @@ on:
       - 'templates/**'
       - 'static/**'
       - '.github/workflows/frontend.yml'
+      - 'netlify.toml'
   pull_request:
     branches: [ main ]
 
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     
     steps:
     - uses: actions/checkout@v2
@@ -23,15 +22,19 @@ jobs:
       run: |
         mkdir -p dist
         cp -r static dist/
-        # Create index.html in root
         cp templates/index.html dist/index.html
-        # Update paths in index.html for GitHub Pages
-        sed -i 's|href="/static/|href="./static/|g' dist/index.html
-        sed -i 's|fetch("/|fetch("./|g' dist/index.html
     
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v2.0
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        force_orphan: true 
+        publish-dir: './dist'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions"
+        enable-pull-request-comment: true
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      timeout-minutes: 1 
