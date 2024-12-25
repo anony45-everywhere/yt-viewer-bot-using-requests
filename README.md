@@ -51,15 +51,24 @@ The application will be available at `http://localhost:8000`
 
 ## Deployment
 
-The application uses GitHub Actions to run the FastAPI server:
+The application uses separate GitHub Actions workflows for backend and frontend:
 
-1. Fork or clone this repository
-2. Go to the Actions tab in your repository
-3. Enable workflows if they're not already enabled
-4. Push to the main branch to trigger deployment
-5. The server will start automatically and run continuously
+### Backend Deployment
+1. The backend API runs on GitHub Actions
+2. Automatically deploys when changes are made to:
+   - `app.py`
+   - `youtube_viewer.py`
+   - `requirements.txt`
+3. Access the API at the GitHub Actions runner's URL
 
-Note: This deployment method is suitable for testing and development. For production use, consider using a proper hosting service like:
+### Frontend Deployment
+1. The frontend is deployed to GitHub Pages
+2. Automatically deploys when changes are made to:
+   - `templates/`
+   - `static/`
+3. Access the frontend at `https://yourusername.github.io/youtube-viewer-api`
+
+Note: For production use, consider using a proper hosting service like:
 - DigitalOcean
 - AWS EC2
 - Google Cloud Run
