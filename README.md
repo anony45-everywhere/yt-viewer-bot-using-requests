@@ -1,4 +1,5 @@
 # YouTube Viewer API
+[![Netlify Status](https://api.netlify.com/api/v1/badges/18582b2e-91c9-4d69-ab3f-6aebb1438a06/deploy-status)](https://app.netlify.com/sites/yt-viewer-using-req/deploys)
 
 A FastAPI-based web application that provides an API for simulating YouTube views using proxy servers.
 
